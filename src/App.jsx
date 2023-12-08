@@ -2,6 +2,31 @@ import InputField from "./Components/InputField";
 import DisplayAge from "./Components/DisplayAge";
 import { useAgeStore, useDayStore, useMonthStore, useYearStore } from "./state";
 
+function calculateAge(birthYear, birthMonth, birthDay) {
+  const date = new Date();
+  const currentYear = date.getFullYear();
+  const currentMonth = date.getMonth() + 1;
+  const currentDay = date.getDate();
+
+  let ageYears = currentYear - birthYear;
+  let ageMonths = currentMonth - birthMonth;
+  let ageDays = currentDay - birthDay;
+
+  // Adjust for negative months or days
+  if (ageDays < 0) {
+    ageMonths--;
+    // Adjust days to be positive
+    ageDays += new Date(currentYear, currentMonth, 0).getDate();
+  }
+
+  if (ageMonths < 0) {
+    ageYears--;
+    ageMonths += 12; // Adjust months to be positive
+  }
+
+  return { years: ageYears, months: ageMonths, days: ageDays };
+}
+
 function App() {
   const day = useDayStore((state) => state.day);
   const month = useMonthStore((state) => state.month);
@@ -18,11 +43,8 @@ function App() {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    const date = new Date();
-    const currentYear = date.getFullYear();
-    const currentMonth = date.getMonth();
-    const currentDay = date.getDate();
-    setAge(currentYear, currentMonth, currentDay);
+    const { years, months, days } = calculateAge(year, month, day);
+    setAge(years, months, days);
   };
 
   return (
